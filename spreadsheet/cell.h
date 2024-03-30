@@ -5,6 +5,7 @@
 
 #include <functional>
 #include <unordered_set>
+#include <stack>
 
 class Sheet;
 
@@ -28,9 +29,13 @@ private:
     class TextImpl;
     class FormulaImpl;
 
-    std::unique_ptr<Impl> impl_;
+   void CashInvalidation(bool recursive = false);
+    bool CircularDependency(const Impl& impl);
 
-    // Добавьте поля и методы для связи с таблицей, проверки циклических 
-    // зависимостей, графа зависимостей и т. д.
+
+    std::unique_ptr<Impl> impl_;
+    Sheet& sheet_;
+    std::unordered_set<Cell*> left_cells_;
+    std::unordered_set<Cell*> right_cells_;
 
 };
