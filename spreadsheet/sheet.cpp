@@ -15,13 +15,10 @@ using namespace std::literals;
 Sheet::~Sheet() {}
 
 void Sheet::SetCell(Position pos, std::string text) {
-
-    if (!pos.IsValid()) {
-        throw InvalidPositionException("Invalid table position");
-    }
-
+    CheckPosition(pos);
+    
     SetTableSize(pos);
-  
+
     if (table_[pos.row][pos.col] == nullptr){
         table_[pos.row][pos.col] = ( std::make_unique<Cell>(*this));
     }
@@ -38,13 +35,12 @@ CellInterface* Sheet::GetCell(Position pos) {
 }
 
 const Cell* Sheet::GetConcreteCell(Position pos) const {
-    if (!pos.IsValid()) {
-        throw InvalidPositionException("Invalid table position");
-    }
+     CheckPosition(pos);
 
     if (pos.row + 1 > static_cast<int>(table_.size()) || pos.col + 1 > static_cast<int>(table_[pos.row].size())) {
         return nullptr;
     }
+
    const Cell* cell = table_[pos.row][pos.col].get();
     return cell;
 
@@ -58,9 +54,7 @@ Cell* Sheet::GetConcreteCell(Position pos) {
 
 
 void Sheet::ClearCell(Position pos) {
-    if (!pos.IsValid()) {
-        throw InvalidPositionException("Invalid table position");
-    }
+    CheckPosition(pos);
 
    if (pos.row + 1 > static_cast<int>(table_.size()) || pos.col + 1 > static_cast<int>(table_[pos.row].size())){
         return;
@@ -147,6 +141,12 @@ void Sheet::SetTableSize(Position pos) {
         while (static_cast<int>(table_[i].size()) < std::max(static_cast<int>(table_[0].size()), pos.col + 1)) {
             table_[i].push_back(nullptr);
         }
+    }
+}
+
+void Sheet::CheckPosition(Position pos) const {
+    if (!pos.IsValid()) {
+        throw InvalidPositionException("Invalid table position");
     }
 }
 

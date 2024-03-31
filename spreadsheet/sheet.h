@@ -28,6 +28,7 @@ public:
 
 private:	
    void SetTableSize(Position pos);
+   void CheckPosition(Position pos) const;
 
    std::vector<std::vector<std::unique_ptr<Cell>>>table_; 
 };

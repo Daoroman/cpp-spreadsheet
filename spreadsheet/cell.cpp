@@ -100,9 +100,9 @@ void Cell::CashInvalidation(bool recursive){
 	}
 }
 
-bool Cell::CircularDependency(const Impl& impl) {
+void Cell::CircularDependency(const Impl& impl) {
 	if (impl.GetReferencedCells().empty()) {
-		return false;
+		return;
 	}
 
 	std::unordered_set<const Cell*> referenced;
@@ -110,7 +110,6 @@ bool Cell::CircularDependency(const Impl& impl) {
 		auto cell = sheet_.GetConcreteCell(pos);
 		referenced.insert(cell);
 	}
-
 	std::unordered_set<const Cell*> visited;
 	std::stack<const Cell*> to_visit;
 	to_visit.push(this);
@@ -120,14 +119,13 @@ bool Cell::CircularDependency(const Impl& impl) {
 		visited.insert(current);
 
 		if (referenced.find(current) != referenced.end()) {
-			return true;
+			throw CircularDependencyException("");
 		}
 
 		for (const Cell* incoming : current->left_cells_) {
 			if (visited.find(incoming) == visited.end()) to_visit.push(incoming);
 		}
 	}
-	return false;
 }
 
 void Cell::Set(std::string text) {
@@ -142,9 +140,8 @@ void Cell::Set(std::string text) {
 	else
 			(impl = std::make_unique<TextImpl>(std::move(text)));
 
-	if (CircularDependency(*impl)) {
-		throw CircularDependencyException("");
-	}
+	CircularDependency(*impl);
+
 	impl_ = std::move(impl);
 
 	for (Cell* cell : right_cells_) {
@@ -166,7 +163,7 @@ void Cell::Set(std::string text) {
 }
 
 void Cell::Clear() {
-	impl_ = std::make_unique<EmptyImpl>();
+	Set("");
 }
 
 Cell::Value Cell::GetValue() const {

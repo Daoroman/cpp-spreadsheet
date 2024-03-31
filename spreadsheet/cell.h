@@ -30,7 +30,7 @@ private:
     class FormulaImpl;
 
    void CashInvalidation(bool recursive = false);
-    bool CircularDependency(const Impl& impl);
+   void CircularDependency(const Impl& impl);
 
 
     std::unique_ptr<Impl> impl_;
